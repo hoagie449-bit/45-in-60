@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<link rel="manifest" href="manifest.json">
+
+<meta name="theme-color" content="#f97316">
+
+<!-- iOS specific: make it behave like an app -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="45 in 60">
+<link rel="apple-touch-icon" href="icon-192.png">
+
+  <meta charset="UTF-8" />
+  <title>45 in 60 🐵</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at top, #f97316 0, #facc15 35%, #22c55e 75%, #16a34a 100%);
+      color: #111827;
+    }
+
+    .app {
+      width: min(520px, 100%);
+      margin: 1rem;
+      background: linear-gradient(145deg, #ecfdf5, #fefce8);
+      border-radius: 26px;
+      padding: 1.7rem 1.9rem 2.1rem;
+      box-shadow:
+        0 18px 40px rgba(15, 23, 42, 0.35),
+        0 0 0 3px rgba(250, 204, 21, 0.45);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .app::before {
+      content: "🐒";
+      position: absolute;
+      font-size: 3.5rem;
+      right: 0.8rem;
+      top: 0.4rem;
+      opacity: 0.3;
+      transform: rotate(10deg);
+      pointer-events: none;
+    }
+
+    h1 {
+      margin-top: 0;
+      text-align: left;
+      font-size: 2rem;
+      letter-spacing: 0.03em;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      color: #0f172a;
+    }
+
+    h1 span.icon {
+      font-size: 2.1rem;
+    }
+
+    .subtitle {
+      text-align: left;
+      color: #4b5563;
+      margin-bottom: 1.4rem;
+      font-size: 0.98rem;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    .tables-grid {
+      display: grid;
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+      gap: 0.55rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .table-btn {
+      border: 2px solid #f97316;
+      background: #fff7ed;
+      color: #9a3412;
+      padding: 0.45rem 0;
+      border-radius: 999px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      font-weight: 600;
+      box-shadow: 0 3px 0 #ea580c;
+    }
+
+    .table-btn:hover {
+      background: #fed7aa;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 0 #ea580c;
+    }
+
+    .table-btn.selected {
+      background: linear-gradient(to right, #facc15, #22c55e);
+      border-color: #22c55e;
+      color: #14532d;
+      transform: translateY(-1px) scale(1.03);
+      box-shadow: 0 4px 0 #16a34a;
+    }
+
+    .selection-info {
+      font-size: 0.95rem;
+      color: #6b7280;
+      margin-bottom: 0.4rem;
+    }
+
+    .selection-info span {
+      font-weight: 700;
+      color: #1f2937;
+    }
+
+    .selection-note {
+      font-size: 0.85rem;
+      color: #9ca3af;
+      margin-bottom: 1.5rem;
+    }
+
+    .selection-note strong {
+      color: #f97316;
+    }
+
+    .btn-primary {
+      width: 100%;
+      border: none;
+      border-radius: 999px;
+      padding: 0.9rem 1rem;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      background: linear-gradient(90deg, #f97316, #facc15);
+      color: #1f2937;
+      box-shadow: 0 10px 0 #ea580c;
+      transition: transform 0.1s ease, box-shadow 0.1s ease, filter 0.1s ease;
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .btn-primary:not(:disabled):hover {
+      filter: brightness(1.05);
+      transform: translateY(-2px);
+      box-shadow: 0 11px 0 #ea580c;
+    }
+
+    .btn-primary:not(:disabled):active {
+      transform: translateY(0);
+      box-shadow: 0 4px 0 #ea580c;
+    }
+
+    .btn-secondary {
+      width: 100%;
+      border-radius: 999px;
+      padding: 0.8rem 1rem;
+      margin-top: 1rem;
+      border: 2px solid #22c55e;
+      background: #ecfdf5;
+      color: #14532d;
+      font-size: 0.98rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, box-shadow 0.1s ease;
+      box-shadow: 0 4px 0 #16a34a;
+    }
+
+    .btn-secondary:hover {
+      background: #bbf7d0;
+      transform: translateY(-1px);
+      box-shadow: 0 5px 0 #16a34a;
+    }
+
+    .btn-secondary:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 0 #16a34a;
+    }
+
+    /* Game screen */
+    .top-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.2rem;
+    }
+
+    .timer {
+      font-size: 1.9rem;
+      font-weight: 800;
+      padding: 0.3rem 0.9rem;
+      border-radius: 999px;
+      background: #fee2e2;
+      color: #b91c1c;
+      border: 2px solid #f97316;
+      box-shadow: 0 4px 0 #ea580c;
+    }
+
+    .timer.low {
+      background: #fef3c7;
+      color: #ea580c;
+    }
+
+    .timer.critical {
+      background: #fecaca;
+      color: #b91c1c;
+      animation: pulse 0.7s infinite alternate;
+    }
+
+    @keyframes pulse {
+      from { transform: scale(1); }
+      to { transform: scale(1.09); }
+    }
+
+    .question-count {
+      font-size: 0.92rem;
+      color: #6b7280;
+      font-weight: 500;
+      text-align: right;
+    }
+
+    .question {
+      text-align: center;
+      font-size: 2.6rem;
+      margin: 1rem 0 1.3rem;
+      color: #0f172a;
+    }
+
+    .question span.monkey {
+      font-size: 2rem;
+      margin-left: 0.35rem;
+    }
+
+    .answer-row {
+      display: flex;
+      gap: 0.7rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .answer-input {
+      flex: 1;
+      padding: 0.7rem 0.8rem;
+      border-radius: 18px;
+      border: 2px solid #22c55e;
+      background: #ffffff;
+      color: #111827;
+      font-size: 1.4rem;
+      text-align: center;
+      outline: none;
+      box-shadow: 0 4px 0 #16a34a;
+    }
+
+    .answer-input:focus {
+      border-color: #16a34a;
+      box-shadow: 0 5px 0 #16a34a;
+    }
+
+    .small-hint {
+      text-align: right;
+      font-size: 0.8rem;
+      color: #9ca3af;
+    }
+
+    /* Results */
+    .results-title {
+      text-align: center;
+      font-size: 1.8rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .results-subtitle {
+      text-align: center;
+      font-size: 0.98rem;
+      color: #4b5563;
+      margin-bottom: 1.5rem;
+    }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 0.75rem;
+      margin-bottom: 1.2rem;
+    }
+
+    .results-card {
+      background: #ffffff;
+      border-radius: 16px;
+      padding: 0.8rem 0.6rem;
+      border: 2px solid #fde68a;
+      text-align: center;
+      box-shadow: 0 4px 0 #fbbf24;
+    }
+
+    .results-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: #9ca3af;
+      margin-bottom: 0.25rem;
+    }
+
+    .results-value {
+      font-size: 1.4rem;
+      font-weight: 800;
+    }
+
+    .results-value.correct {
+      color: #16a34a;
+    }
+
+    .results-value.incorrect {
+      color: #ea580c;
+    }
+
+    .results-value.total {
+      color: #1f2937;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      justify-content: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .chip {
+      border-radius: 999px;
+      padding: 0.25rem 0.7rem;
+      font-size: 0.8rem;
+      background: #ecfccb;
+      color: #3f6212;
+      border: 1px solid #84cc16;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .chip span {
+      font-size: 1rem;
+    }
+
+    .results-monkey {
+      text-align: center;
+      font-size: 1.3rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .results-monkey span {
+      font-size: 1.7rem;
+      margin-left: 0.25rem;
+    }
+
+    @media (max-width: 400px) {
+      .question {
+        font-size: 2.1rem;
+      }
+      .app {
+        padding: 1.4rem 1.3rem 1.7rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- START SCREEN -->
+    <div id="screen-start">
+      <h1>
+        <span class="icon">🐵</span>
+        45 in 60
+      </h1>
+      <p class="subtitle">
+        Jungle maths! Choose up to 4 times tables, then see how many you can smash in 60 seconds.
+      </p>
+
+      <div class="tables-grid" id="tables-grid">
+        <!-- Buttons 1–12 created by JS -->
+      </div>
+
+      <div class="selection-info">
+        You’ve chosen <span id="selection-count">0</span>/4 tables.
+      </div>
+      <div class="selection-note">
+        Each sum will only repeat <strong>after</strong> all <strong>1–12</strong> for your tables have been used. 🍌
+      </div>
+
+      <button id="btn-start" class="btn-primary" disabled>
+        Start the monkey maths!
+      </button>
+    </div>
+
+    <!-- GAME SCREEN -->
+    <div id="screen-game" class="hidden">
+      <div class="top-row">
+        <div class="timer" id="timer">60</div>
+        <div class="question-count" id="question-count">Question 1 of 45</div>
+      </div>
+
+      <div class="question" id="question-text">
+        3 × 4 = <span class="monkey">🐒</span>
+      </div>
+
+      <div class="answer-row">
+        <input
+          id="answer-input"
+          class="answer-input"
+          type="number"
+          inputmode="numeric"
+          autocomplete="off"
+          placeholder="?"
+        />
+        <button id="btn-next" class="btn-primary" style="width:auto; min-width:110px;">
+          Next
+        </button>
+      </div>
+      <div class="small-hint">
+        Press Enter to swing to the next sum
+      </div>
+    </div>
+
+    <!-- RESULTS SCREEN -->
+    <div id="screen-results" class="hidden">
+      <div class="results-monkey">
+        Monkey maths results <span>🐵</span>
+      </div>
+      <div class="results-title" id="results-title">
+        Great swinging!
+      </div>
+      <div class="results-subtitle" id="results-subtitle">
+        Here’s how your brain bananas did:
+      </div>
+
+      <div class="results-grid">
+        <div class="results-card">
+          <div class="results-label">Total answered</div>
+          <div class="results-value total" id="results-total">0</div>
+        </div>
+        <div class="results-card">
+          <div class="results-label">Correct</div>
+          <div class="results-value correct" id="results-correct">0</div>
+        </div>
+        <div class="results-card">
+          <div class="results-label">Incorrect</div>
+          <div class="results-value incorrect" id="results-incorrect">0</div>
+        </div>
+      </div>
+
+      <div class="chip-row" id="tables-played-chip-row">
+        <!-- Filled with tables played (e.g. ×3, ×7) -->
+      </div>
+
+      <button id="btn-play-again" class="btn-secondary">
+        Play again with the monkey!
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // --- State ---
+    const maxTables = 4;
+    const maxQuestions = 45;
+    const gameDurationSeconds = 60;
+
+    let selectedTables = [];
+    let timerInterval = null;
+    let timeRemaining = gameDurationSeconds;
+    let currentQuestion = null;
+    let questionNumber = 0;
+    let totalCorrect = 0;
+    let totalIncorrect = 0;
+    let gameActive = false;
+
+    // Question pool & index (unique sums first)
+    let questionPool = [];
+    let poolIndex = 0;
+
+    // --- Elements ---
+    const screenStart   = document.getElementById("screen-start");
+    const screenGame    = document.getElementById("screen-game");
+    const screenResults = document.getElementById("screen-results");
+
+    const tablesGrid      = document.getElementById("tables-grid");
+    const selectionCount  = document.getElementById("selection-count");
+    const btnStart        = document.getElementById("btn-start");
+
+    const timerEl         = document.getElementById("timer");
+    const questionCountEl = document.getElementById("question-count");
+    const questionTextEl  = document.getElementById("question-text");
+    const answerInput     = document.getElementById("answer-input");
+    const btnNext         = document.getElementById("btn-next");
+
+    const resultsTitleEl      = document.getElementById("results-title");
+    const resultsSubtitleEl   = document.getElementById("results-subtitle");
+    const resultsTotalEl      = document.getElementById("results-total");
+    const resultsCorrectEl    = document.getElementById("results-correct");
+    const resultsIncorrectEl  = document.getElementById("results-incorrect");
+    const tablesPlayedChipRow = document.getElementById("tables-played-chip-row");
+    const btnPlayAgain        = document.getElementById("btn-play-again");
+
+    // --- Build table buttons (1–12) ---
+    for (let i = 1; i <= 12; i++) {
+      const btn = document.createElement("button");
+      btn.textContent = i;
+      btn.className = "table-btn";
+      btn.dataset.tableValue = i.toString();
+
+      btn.addEventListener("click", () => {
+        toggleTableSelection(i, btn);
+      });
+
+      tablesGrid.appendChild(btn);
+    }
+
+    function toggleTableSelection(value, btn) {
+      const index = selectedTables.indexOf(value);
+
+      if (index === -1) {
+        // Not selected yet
+        if (selectedTables.length >= maxTables) {
+          // At max, ignore
+          return;
+        }
+        selectedTables.push(value);
+        btn.classList.add("selected");
+      } else {
+        // Deselect
+        selectedTables.splice(index, 1);
+        btn.classList.remove("selected");
+      }
+
+      selectionCount.textContent = selectedTables.length.toString();
+      btnStart.disabled = selectedTables.length === 0;
+    }
+
+    // --- Game logic ---
+    btnStart.addEventListener("click", startGame);
+
+    function startGame() {
+      if (selectedTables.length === 0) return;
+
+      // Reset game state
+      timeRemaining = gameDurationSeconds;
+      questionNumber = 0;
+      totalCorrect = 0;
+      totalIncorrect = 0;
+      gameActive = true;
+
+      // Build full unique question pool for the selected tables (1–12 each)
+      questionPool = [];
+      selectedTables.forEach((t) => {
+        for (let m = 1; m <= 12; m++) {
+          questionPool.push({
+            a: t,
+            b: m,
+            answer: t * m
+          });
+        }
+      });
+
+      // Shuffle the pool (Fisher–Yates)
+      for (let i = questionPool.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [questionPool[i], questionPool[j]] = [questionPool[j], questionPool[i]];
+      }
+      poolIndex = 0;
+
+      // Switch screens
+      screenStart.classList.add("hidden");
+      screenResults.classList.add("hidden");
+      screenGame.classList.remove("hidden");
+
+      // Timer
+      updateTimerDisplay();
+      if (timerInterval) clearInterval(timerInterval);
+      timerInterval = setInterval(tick, 1000);
+
+      // First question
+      nextQuestion();
+
+      // Focus input
+      answerInput.value = "";
+      answerInput.focus();
+    }
+
+    function tick() {
+      if (!gameActive) return;
+      timeRemaining--;
+      if (timeRemaining <= 0) {
+        timeRemaining = 0;
+        updateTimerDisplay();
+        endGame("time");
+        return;
+      }
+      updateTimerDisplay();
+    }
+
+    function updateTimerDisplay() {
+      timerEl.textContent = timeRemaining.toString();
+      timerEl.classList.remove("low", "critical");
+
+      if (timeRemaining <= 10) {
+        timerEl.classList.add("critical");
+      } else if (timeRemaining <= 20) {
+        timerEl.classList.add("low");
+      }
+    }
+
+    function randomFromArray(arr) {
+      const idx = Math.floor(Math.random() * arr.length);
+      return arr[idx];
+    }
+
+    // Generate question:
+    // - Use each unique sum (table × 1–12) once
+    // - After pool exhausted, allow repeats from that pool
+    function generateQuestion() {
+      // Go through unique pool first
+      if (poolIndex < questionPool.length) {
+        const q = questionPool[poolIndex];
+        poolIndex++;
+        return q;
+      }
+
+      // Pool exhausted -> allow repeats from pool
+      if (questionPool.length > 0) {
+        const idx = Math.floor(Math.random() * questionPool.length);
+        return questionPool[idx];
+      }
+
+      // Fallback (shouldn't happen): random from selected tables
+      const table = randomFromArray(selectedTables);
+      const multiplier = Math.floor(Math.random() * 12) + 1; // 1–12
+      return {
+        a: table,
+        b: multiplier,
+        answer: table * multiplier
+      };
+    }
+
+    function nextQuestion() {
+      if (!gameActive) return;
+
+      if (questionNumber >= maxQuestions) {
+        endGame("completed");
+        return;
+      }
+
+      questionNumber++;
+      currentQuestion = generateQuestion();
+      questionCountEl.textContent = `Question ${questionNumber} of ${maxQuestions}`;
+      questionTextEl.textContent = `${currentQuestion.a} × ${currentQuestion.b} = `;
+      // Add monkey emoji in the question
+      const span = document.createElement("span");
+      span.className = "monkey";
+      span.textContent = "🐒";
+      questionTextEl.appendChild(span);
+
+      answerInput.value = "";
+      answerInput.focus();
+    }
+
+    function submitAnswer() {
+      if (!gameActive || !currentQuestion) return;
+
+      const userValueRaw = answerInput.value.trim();
+      const userValue = userValueRaw === "" ? NaN : Number(userValueRaw);
+
+      if (userValue === currentQuestion.answer) {
+        totalCorrect++;
+      } else {
+        totalIncorrect++;
+      }
+
+      if (questionNumber >= maxQuestions || timeRemaining <= 0) {
+        endGame("completed");
+        return;
+      }
+
+      nextQuestion();
+    }
+
+    btnNext.addEventListener("click", submitAnswer);
+    answerInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        submitAnswer();
+      }
+    });
+
+    function endGame(reason) {
+      if (!gameActive) return;
+      gameActive = false;
+      if (timerInterval) clearInterval(timerInterval);
+
+      screenGame.classList.add("hidden");
+      screenResults.classList.remove("hidden");
+
+      const totalAnswered = totalCorrect + totalIncorrect;
+      resultsTotalEl.textContent = totalAnswered.toString();
+      resultsCorrectEl.textContent = totalCorrect.toString();
+      resultsIncorrectEl.textContent = totalIncorrect.toString();
+
+      if (reason === "time") {
+        resultsTitleEl.textContent = "Time’s up, little monkey!";
+      } else if (totalAnswered >= maxQuestions) {
+        resultsTitleEl.textContent = "You finished all the sums!";
+      } else {
+        resultsTitleEl.textContent = "Nice swinging!";
+      }
+
+      if (totalCorrect === 0 && totalAnswered === 0) {
+        resultsSubtitleEl.textContent = "No worries. Have another go and swing into action!";
+      } else if (totalCorrect === totalAnswered && totalAnswered > 0) {
+        resultsSubtitleEl.textContent = "Perfect score! Banana genius! 🍌";
+      } else {
+        resultsSubtitleEl.textContent = "Keep practising – your monkey brain is getting stronger!";
+      }
+
+      // Show which tables were used
+      tablesPlayedChipRow.innerHTML = "";
+      selectedTables.forEach((t) => {
+        const chip = document.createElement("div");
+        chip.className = "chip";
+        const emoji = document.createElement("span");
+        emoji.textContent = "🍌";
+        chip.textContent = `×${t}`;
+        chip.appendChild(emoji);
+        tablesPlayedChipRow.appendChild(chip);
+      });
+    }
+
+    // Play again
+    btnPlayAgain.addEventListener("click", () => {
+      // Return to start screen, keep previous selection
+      screenResults.classList.add("hidden");
+      screenGame.classList.add("hidden");
+      screenStart.classList.remove("hidden");
+
+      // Reset timer visual
+      timeRemaining = gameDurationSeconds;
+      updateTimerDisplay();
+    });
+  </script>
+</body>
+</html>
